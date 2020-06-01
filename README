@@ -16,6 +16,10 @@ in example.txt will create example.txt.pdf file.
 
 Some variables can be customized in pdf and ps groups.
 
+* Download
+
+   git clone https://logand.com/git/emacs-pdf.git
+
 * Why?
 
 PDF have (unfortunatelly) become the standard format for exchanging
@@ -76,3 +80,8 @@ too much?
 tables, pictures etc: Is there a reasonable subset for rich documents
 without inventing new document format and reinventing TeX, roff etc?
 Or just use abw or odt files directly?
+
+* Discussion
+
+see
+https://www.reddit.com/r/emacs/comments/guffg5/emacspdfel_emacs_library_to_print_buffer_to_pdf/
