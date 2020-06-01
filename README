@@ -20,6 +20,10 @@ Some variables can be customized in pdf and ps groups.
 
    git clone https://logand.com/git/emacs-pdf.git
 
+* Atom Feed
+
+see https://logand.com/sw/emacs-pdf/atom.xml
+
 * Why?
 
 PDF have (unfortunatelly) become the standard format for exchanging
