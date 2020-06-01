@@ -97,6 +97,7 @@ Useful functions:
 (defun pdf-ref (num ver) `(pdf-ref ,num ,ver))
 
 (defun insert-pdf (x)
+  "Serialize cons tree x as PDF octets into the current buffer."
   (let (objs xrefpos)
     (cl-labels ((rec (x)
                      (etypecase x
@@ -172,24 +173,28 @@ Useful functions:
       (rec x))))
 
 (defun pdf-brook-collect (brook)
+  "Collect all values pulled from brook."
   (loop
    with z = nil
    while (setq z (funcall brook))
    collect z))
 
 (defun pdf-brook-appending (brook)
+  "Append all values pulled from brook."
   (loop
    with z = nil
    while (setq z (funcall brook))
    appending z))
 
 (defun pdf-brook-count (brook)
+  "Count all values in brook."
   (loop
    with z = nil
    while (setq z (funcall brook))
    count z))
 
 (defun pdf-brook (x)
+  "Make new brook from x."
   (etypecase x
     (list
      (lambda ()
@@ -199,6 +204,7 @@ Useful functions:
 ;;(pdf-brook-count (pdf-brook '(1 2 3 4)))
 
 (defun pdf-flat-brook (&rest brooks)
+  "Compose brooks left to right, depth-first."
   (lambda ()
     (block loop
       (while brooks
@@ -211,6 +217,7 @@ Useful functions:
 ;;(pdf-brook-collect (pdf-flat-brook (pdf-brook '(1 2 3)) (pdf-brook '(4 5 6))))
 
 (defun pdf-source-line-brook (string)
+  "Make brook from string.  Elements are string per line or 'pagebreak."
   (pdf-flat-brook
    (let ((pages (pdf-brook (split-string string ""))))
      (lambda ()
@@ -222,6 +229,7 @@ Useful functions:
 ;;(pdf-brook-collect (pdf-source-line-brook "1\n23\n4\n5"))
 
 (defun pdf-source-page-brook (brook)
+  "Make brook for single page from brook."
   (lambda ()
     (let ((z (funcall brook)))
       (when z
@@ -232,22 +240,33 @@ Useful functions:
 
 (defvar *pdf-page-number*)
 (defun pdf-page-number ()
+  "Return current page number as string.  Useful in document
+header or footer."
   (format "%s" *pdf-page-number*))
 
 (defvar *pdf-number-of-pages*)
 (defun pdf-number-of-pages ()
+  "Return number of pages as string.  Useful in document header
+or footer."
   (format "%s" *pdf-number-of-pages*))
 
 (defvar *pdf-file-name*)
 (defun pdf-dirpart ()
+  "Return directory part as string.  Useful in document header or
+footer."
   (file-name-directory *pdf-file-name*))
 (defun pdf-nondirpart ()
+  "Return non-directory part as string.  Useful in document header or
+footer."
   (file-name-nondirectory *pdf-file-name*))
 
 (defun pdf-iso8601-date ()
+  "Return current data as ISO8601 string.  Useful in document
+header or footer."
   (format-time-string "%Y-%m-%d"))
 
 (defun pdf-header-or-footer-text (i n file-name list)
+  "Insert document header or footer specified in list."
   (with-temp-buffer
     (let ((*pdf-page-number* i)
           (*pdf-number-of-pages* n)
@@ -261,15 +280,19 @@ Useful functions:
     (buffer-string)))
 
 (defun pdf-header-text (i n file-name)
+  "Insert document header."
   (pdf-header-or-footer-text i n file-name pdf-header))
 
 (defun pdf-footer-text (i n file-name)
+  "Insert document footer."
   (pdf-header-or-footer-text i n file-name pdf-footer))
 
 (defun pdf-line (x y line)
+  "Represent PDF line as list of PDF drawing primitives."
   `(1 0 0 1 ,x ,y Tm ,line Tj))
 
 (defun pdf-page-text (lines x0 y0 line-height header footer)
+  "Represent PDF page as list of PDF drawing primitives."
   (pdf-brook-appending
    (let* ((page (pdf-source-page-brook lines))
           (bottom-margin (+ ps-bottom-margin
@@ -289,6 +312,8 @@ Useful functions:
                ,@(pdf-line x0 y line)))))))))
 
 (defun pdf-page-dimensions ()
+  "Return values of page width and height depending on
+ps-paper-type and ps-landscape-mode."
   (let ((x (cdr (assq ps-paper-type ps-page-dimensions-database))))
     (if ps-landscape-mode
         (values (cadr x) (car x))
@@ -298,6 +323,7 @@ Useful functions:
 
 (defun pdf-pages-brook (substring x0 y0 line-height font-size
                                   npages file-name parent oid !ref)
+  "Make brook of PDF objects per page."
   (let ((lines (pdf-source-line-brook substring))
         (i 0))
     (lambda ()
@@ -327,12 +353,14 @@ Useful functions:
                                 /Contents (pdf-ref ,oid1 0))))))))))
 
 (defun pdf-npages (substring x0 y0 line-height font-size file-name)
+  "Count number of pages in the document."
   (pdf-brook-count
    (pdf-pages-brook substring x0 y0 line-height font-size 0 file-name nil
                     (lambda () 0)
                     (lambda (x) (ignore x)))))
 
 (defun pdf-region (from to &optional file-name)
+  "Save region to PDF file."
   (interactive "r")
   (multiple-value-bind (page-width page-height) (pdf-page-dimensions)
     (let* ((coding-system-for-write 'raw-text-unix)
@@ -389,6 +417,7 @@ Useful functions:
         (write-region (point-min) (point-max) file-name)))))
 
 (defun pdf-buffer (&optional file-name)
+  "Save buffer to PDF file."
   (interactive)
   (pdf-region (point-min) (point-max) file-name))
 
