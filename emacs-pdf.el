@@ -272,11 +272,12 @@ header or footer."
           (*pdf-number-of-pages* n)
           (*pdf-file-name* file-name))
       (dolist (x list)
-        (insert
-         (etypecase x
-           (function (funcall x))
-           (symbol (symbol-value x))
-           (string x)))))
+        (when x
+          (insert
+           (etypecase x
+             (function (funcall x))
+             (symbol (symbol-value x))
+             (string x))))))
     (buffer-string)))
 
 (defun pdf-header-text (i n file-name)
