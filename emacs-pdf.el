@@ -8,6 +8,8 @@
 ;;;
 ;;; License: GPLv3 or later
 ;;;
+;;; Download: git clone https://logand.com/git/emacs-pdf.git
+;;;
 ;;; Example configuration:
 ;;;
 ;;; (require 'pdf)
