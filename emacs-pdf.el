@@ -256,11 +256,11 @@ or footer."
 (defun pdf-dirpart ()
   "Return directory part as string.  Useful in document header or
 footer."
-  (file-name-directory *pdf-file-name*))
+  (and *pdf-file-name* (file-name-directory *pdf-file-name*)))
 (defun pdf-nondirpart ()
   "Return non-directory part as string.  Useful in document header or
 footer."
-  (file-name-nondirectory *pdf-file-name*))
+  (and *pdf-file-name* (file-name-nondirectory *pdf-file-name*)))
 
 (defun pdf-iso8601-date ()
   "Return current data as ISO8601 string.  Useful in document
@@ -277,8 +277,8 @@ header or footer."
         (when x
           (insert
            (etypecase x
-             (function (funcall x))
-             (symbol (symbol-value x))
+             (function (or (funcall x) ""))
+             (symbol (or (symbol-value x) ""))
              (string x))))))
     (buffer-string)))
 
@@ -367,7 +367,9 @@ ps-paper-type and ps-landscape-mode."
   (interactive "r")
   (multiple-value-bind (page-width page-height) (pdf-page-dimensions)
     (let* ((coding-system-for-write 'raw-text-unix)
-           (source-file-name (or file-name (buffer-file-name)))
+           (source-file-name (or file-name
+                                 (buffer-file-name)
+                                 (buffer-name)))
            (file-name (concat source-file-name ".pdf"))
            (x0 ps-left-margin)
            (y0 (- page-height ps-top-margin))
