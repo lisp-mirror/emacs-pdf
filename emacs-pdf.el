@@ -21,6 +21,7 @@
 ;;;
 ;;; Some variables can be customized in pdf and ps groups.
 
+(require 'cl)
 (require 'printing)
 
 (defcustom pdf-line-height-factor 1.2
