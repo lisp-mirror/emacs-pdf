@@ -90,6 +90,21 @@ Useful functions:
 			 string symbol))
   :group 'pdf)
 
+(defcustom pdf-end-regexp nil
+  "Specify regexp which ends the printable part of the file.
+
+As an example, it may be set to \"^Local Variables:\", in order to leave out
+some special printing instructions from the actual print.  Special printing
+instructions may be appended to the end of the file just like any other
+buffer-local variables.  See section \"Local Variables in Files\" on Emacs
+manual for more information.
+
+It controls what actually gets printed and may be set to nil in which case
+the end of the file ends the printable region."
+  :type '(choice (const :tag "No Delimiter" nil)
+		 (regexp :tag "Delimiter Regexp"))
+  :group 'pdf)
+
 ;; for eldoc
 (defun pdf (&rest rest) `(pdf ,@rest))
 (defun pdf-xref (&rest kv) `(pdf-xref ,@kv))
@@ -380,7 +395,14 @@ ps-paper-type and ps-landscape-mode."
                                   (car ps-font-size)
                                 (cdr ps-font-size)))))
            (line-height (* pdf-line-height-factor font-size))
-           (substring (buffer-substring-no-properties from to))
+           (substring (buffer-substring-no-properties
+		       from
+		       (or (when pdf-end-regexp
+			     (save-excursion
+			       (goto-char (point-min))
+			       (when (re-search-forward pdf-end-regexp to 'noerror)
+				 (min to (match-beginning 0)))))
+			   to)))
            (npages (when (or (when ps-print-header
                                (member 'pdf-number-of-pages pdf-header))
                              (when ps-print-footer
