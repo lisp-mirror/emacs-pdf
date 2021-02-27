@@ -12,7 +12,7 @@
 ;;;
 ;;; Example configuration:
 ;;;
-;;; (require 'pdf)
+;;; (require 'emacs-pdf)
 ;;;
 ;;; Example usage:
 ;;;
@@ -449,4 +449,4 @@ ps-paper-type and ps-landscape-mode."
   (interactive)
   (pdf-region (point-min) (point-max) file-name))
 
-(provide 'pdf)
+(provide 'emacs-pdf)
