@@ -12,6 +12,7 @@
 ;;;
 ;;; Example configuration:
 ;;;
+;;; (add-to-list 'load-path "~/git/emacs-pdf")
 ;;; (require 'emacs-pdf)
 ;;;
 ;;; Example usage:
